@@ -1,0 +1,675 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Strata Committee Board POC</title>
+  <style>
+    :root {
+      --color-primary: #2563eb;
+      --color-primary-content: #ffffff;
+      --color-secondary: #7c3aed;
+      --color-secondary-content: #ffffff;
+      --color-accent: #0ea5e9;
+      --color-accent-content: #ffffff;
+      --color-neutral: #111827;
+      --color-neutral-content: #ffffff;
+      --color-base-100: #ffffff;
+      --color-base-200: #f1f5f9;
+      --color-base-300: #dde3ec;
+      --color-base-content: #1e293b;
+      --color-info: #0284c7;
+      --color-info-content: #ffffff;
+      --color-success: #16a34a;
+      --color-success-content: #ffffff;
+      --color-warning: #d97706;
+      --color-warning-content: #ffffff;
+      --color-error: #dc2626;
+      --color-error-content: #ffffff;
+      --color-border: #d1d9e0;
+      --color-input: #ffffff;
+      --color-muted: #64748b;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--color-base-content);
+      background: #dbeafe;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--color-border);
+      background: var(--color-base-200);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .brand { display: flex; align-items: center; gap: 10px; min-width: 220px; }
+
+    .logo {
+      width: 32px; height: 32px; border-radius: 8px;
+      background: var(--color-primary); color: var(--color-primary-content);
+      display: grid; place-items: center; font-weight: 800; letter-spacing: -0.04em;
+    }
+
+    h1 { margin: 0; font-size: 16px; line-height: 1.2; }
+    .subtitle { color: var(--color-muted); font-size: 12px; margin-top: 2px; }
+
+    .header-actions {
+      display: flex; align-items: center; gap: 8px;
+      flex-wrap: wrap; justify-content: flex-end;
+    }
+
+    button, select, input, textarea { font: inherit; }
+
+    button {
+      border: 1px solid var(--color-border);
+      background: var(--color-base-100);
+      color: var(--color-base-content);
+      padding: 7px 10px; border-radius: 8px;
+      cursor: pointer; transition: 120ms ease;
+    }
+
+    button:hover { background: var(--color-base-300); }
+
+    button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible {
+      outline: 2px solid var(--color-primary); outline-offset: 2px;
+    }
+
+    .primary {
+      background: var(--color-primary); color: var(--color-primary-content);
+      border-color: var(--color-primary);
+    }
+    .primary:hover { filter: brightness(0.95); background: var(--color-primary); }
+
+    .board-wrap { padding: 18px; overflow-x: auto; min-height: calc(100vh - 65px); }
+
+    .board {
+      display: grid;
+      grid-template-columns: repeat(5, 300px);
+      gap: 14px; align-items: start; min-width: max-content;
+    }
+
+    .list {
+      background: var(--color-base-200);
+      border: 1px solid var(--color-border);
+      border-radius: 12px; padding: 10px;
+      box-shadow: 0 1px 2px rgba(15,23,42,0.06);
+      max-height: calc(100vh - 105px); overflow-y: auto;
+    }
+
+    .list-header {
+      display: flex; align-items: center;
+      justify-content: space-between; gap: 8px; margin-bottom: 10px;
+    }
+
+    .list-title { font-weight: 700; font-size: 14px; }
+
+    .count {
+      color: var(--color-muted); font-size: 12px;
+      background: var(--color-base-300); border-radius: 999px; padding: 2px 8px;
+    }
+
+    .cards { display: flex; flex-direction: column; gap: 9px; min-height: 16px; }
+
+    .card {
+      background: var(--color-base-100);
+      border: 1px solid var(--color-border);
+      border-radius: 10px; padding: 10px;
+      box-shadow: 0 1px 2px rgba(15,23,42,0.08);
+    }
+
+    .card-title-row {
+      display: flex; align-items: flex-start;
+      justify-content: space-between; gap: 8px;
+    }
+
+    .card h2 { margin: 0; font-size: 14px; line-height: 1.3; }
+    .card p { margin: 8px 0 0; color: var(--color-muted); font-size: 12px; line-height: 1.45; }
+
+    .labels { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 8px; }
+
+    .label {
+      font-size: 11px; border-radius: 999px; padding: 2px 7px;
+      color: var(--color-neutral-content); background: var(--color-neutral); line-height: 1.5;
+    }
+
+    .maintenance { background: var(--color-info); color: var(--color-info-content); }
+    .finance     { background: var(--color-warning); color: var(--color-warning-content); }
+    .urgent      { background: var(--color-error); color: var(--color-error-content); }
+    .admin       { background: var(--color-neutral); color: var(--color-neutral-content); }
+    .approved    { background: var(--color-success); color: var(--color-success-content); }
+
+    .meta { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; color: var(--color-muted); font-size: 12px; }
+
+    .pill {
+      border: 1px solid var(--color-border);
+      background: var(--color-base-200); border-radius: 999px; padding: 3px 7px;
+    }
+
+    .card-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 10px; }
+    .card-actions button { padding: 6px 7px; font-size: 12px; }
+
+    .vote-button.voted {
+      background: var(--color-success); color: var(--color-success-content);
+      border-color: var(--color-success);
+    }
+
+    .small-icon-button {
+      width: 26px; height: 26px; padding: 0;
+      display: grid; place-items: center; color: var(--color-muted);
+    }
+
+    .add-card {
+      width: 100%; margin-top: 10px; border-style: dashed;
+      color: var(--color-muted); background: transparent;
+    }
+
+    .drawer-backdrop {
+      position: fixed; inset: 0; background: rgba(15,23,42,0.35);
+      display: none; align-items: stretch; justify-content: flex-end; z-index: 20;
+    }
+    .drawer-backdrop.open { display: flex; }
+
+    .drawer {
+      width: min(520px, 100%); background: var(--color-base-100);
+      border-left: 1px solid var(--color-border); padding: 18px;
+      overflow-y: auto; box-shadow: -8px 0 24px rgba(15,23,42,0.18);
+    }
+
+    .drawer-header {
+      display: flex; justify-content: space-between;
+      gap: 12px; align-items: flex-start; margin-bottom: 14px;
+    }
+
+    .drawer h3 { margin: 0; font-size: 18px; }
+
+    .section { border-top: 1px solid var(--color-border); padding-top: 14px; margin-top: 14px; }
+
+    .section h4 {
+      margin: 0 0 8px; font-size: 13px;
+      text-transform: uppercase; letter-spacing: 0.04em; color: var(--color-muted);
+    }
+
+    .checklist { display: flex; flex-direction: column; gap: 8px; margin: 0; padding: 0; list-style: none; }
+
+    .checklist label {
+      display: flex; align-items: center; gap: 8px;
+      background: var(--color-base-200); border: 1px solid var(--color-border);
+      border-radius: 8px; padding: 8px; font-size: 13px;
+    }
+
+    .comment {
+      background: var(--color-base-200); border: 1px solid var(--color-border);
+      border-radius: 8px; padding: 9px; margin-bottom: 8px; font-size: 13px;
+    }
+    .comment strong { display: block; margin-bottom: 3px; }
+
+    textarea, input, select {
+      width: 100%; border: 1px solid var(--color-border);
+      background: var(--color-input); color: var(--color-base-content);
+      border-radius: 8px; padding: 9px;
+    }
+
+    textarea { resize: vertical; min-height: 80px; }
+    .inline-form { display: grid; gap: 8px; }
+
+    .move-row { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+
+    .status {
+      position: fixed; left: 18px; bottom: 18px;
+      background: var(--color-neutral); color: var(--color-neutral-content);
+      border-radius: 10px; padding: 10px 12px; font-size: 13px;
+      opacity: 0; transform: translateY(8px); pointer-events: none;
+      transition: 160ms ease; z-index: 30;
+      max-width: min(420px, calc(100vw - 36px));
+    }
+    .status.show { opacity: 1; transform: translateY(0); }
+
+    .hint {
+      padding: 10px 12px; border: 1px solid var(--color-border);
+      background: var(--color-base-200); border-radius: 10px;
+      color: var(--color-muted); font-size: 13px; margin-bottom: 14px; max-width: 1000px;
+    }
+
+    @media (max-width: 760px) {
+      header { align-items: flex-start; flex-direction: column; }
+      .header-actions { justify-content: flex-start; }
+      .board { grid-template-columns: repeat(5, 280px); }
+      .board-wrap { padding: 12px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand">
+      <div class="logo">S</div>
+      <div>
+        <h1>Strata Committee — Action Board</h1>
+        <div class="subtitle">Proof of concept: issues, quotes, votes and actions in one place</div>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button id="demoModeBtn">Reset demo</button>
+      <button class="primary" id="addIssueBtn">+ Add issue</button>
+    </div>
+  </header>
+
+  <main class="board-wrap">
+    <div class="hint">
+      This mock board shows how we could replace email trails with one card per issue. Try voting, moving cards, opening details, ticking checklist items and adding comments. Nothing is saved after refresh.
+    </div>
+    <section class="board" id="board" aria-label="Strata Trello style board"></section>
+  </main>
+
+  <div class="drawer-backdrop" id="drawerBackdrop" role="dialog" aria-modal="true" aria-label="Card details">
+    <aside class="drawer" id="drawer"></aside>
+  </div>
+
+  <div class="status" id="status" role="status" aria-live="polite"></div>
+
+  <script>
+    const initialLists = [
+      { id: 'inbox',    title: 'Inbox / New Issues' },
+      { id: 'quotes',   title: 'Quotes Needed' },
+      { id: 'decision', title: 'Awaiting Decision' },
+      { id: 'progress', title: 'In Progress' },
+      { id: 'complete', title: 'Completed / Minutes' }
+    ];
+
+    const initialCards = [
+      {
+        id: 'c1', list: 'inbox',
+        title: 'Garage gate intermittently failing',
+        description: 'Reported by Lot 7. Gate sometimes stays open after 8pm. Needs investigation and quote.',
+        labels: ['maintenance', 'urgent'],
+        owner: 'Mia', due: '21 Jun', votes: 3, voted: false, attachments: 2,
+        comments: [
+          { author: 'Guy', text: 'Photo and short video received from Lot 7. Added to the card.' },
+          { author: 'Mia', text: 'I will contact the gate contractor for availability.' }
+        ],
+        checklist: [
+          { text: 'Confirm fault details with Lot 7', done: true },
+          { text: 'Request quote from gate contractor', done: false },
+          { text: 'Add quote to card for committee review', done: false }
+        ]
+      },
+      {
+        id: 'c2', list: 'quotes',
+        title: 'Roof leak above unit 3',
+        description: 'Water staining reported after heavy rain. Need two roof plumber quotes before next meeting.',
+        labels: ['maintenance'],
+        owner: 'James', due: '25 Jun', votes: 1, voted: false, attachments: 1,
+        comments: [
+          { author: 'James', text: 'Contractor A can inspect Thursday morning.' }
+        ],
+        checklist: [
+          { text: 'Upload photos', done: true },
+          { text: 'Get quote from Contractor A', done: false },
+          { text: 'Get quote from Contractor B', done: false }
+        ]
+      },
+      {
+        id: 'c3', list: 'decision',
+        title: 'Garden maintenance contract renewal',
+        description: 'Current contract expires next month. Committee to decide whether to renew or seek alternatives.',
+        labels: ['finance', 'admin'],
+        owner: 'Priya', due: '28 Jun', votes: 5, voted: true, attachments: 3,
+        comments: [
+          { author: 'Priya', text: 'Current contractor is $780/month. Alternative quote is $710/month but excludes green waste.' },
+          { author: 'Guy', text: 'My preference is to keep current contractor if they include quarterly hedge trimming.' }
+        ],
+        checklist: [
+          { text: 'Compare current scope vs new quote', done: true },
+          { text: 'Committee vote/preference', done: false },
+          { text: 'Record decision in minutes', done: false }
+        ]
+      },
+      {
+        id: 'c4', list: 'progress',
+        title: 'Replace foyer light fittings',
+        description: 'Approved at last committee meeting. Electrician booked for next Tuesday.',
+        labels: ['maintenance', 'approved'],
+        owner: 'Alex', due: '18 Jun', votes: 4, voted: false, attachments: 2,
+        comments: [
+          { author: 'Alex', text: 'Electrician confirmed access required from 9am to 11am.' }
+        ],
+        checklist: [
+          { text: 'Notify residents', done: true },
+          { text: 'Confirm access', done: true },
+          { text: 'Receive invoice', done: false }
+        ]
+      },
+      {
+        id: 'c5', list: 'complete',
+        title: 'Annual fire inspection booked',
+        description: 'Inspection confirmed and notice distributed to residents.',
+        labels: ['admin', 'approved'],
+        owner: 'Sam', due: 'Done', votes: 2, voted: false, attachments: 1,
+        comments: [
+          { author: 'Sam', text: 'Completed item ready to be noted in next minutes.' }
+        ],
+        checklist: [
+          { text: 'Book inspection', done: true },
+          { text: 'Send notice', done: true },
+          { text: 'File confirmation email', done: true }
+        ]
+      }
+    ];
+
+    let lists = structuredClone(initialLists);
+    let cards = structuredClone(initialCards);
+    let openCardId = null;
+
+    const board = document.getElementById('board');
+    const drawerBackdrop = document.getElementById('drawerBackdrop');
+    const drawer = document.getElementById('drawer');
+    const statusEl = document.getElementById('status');
+
+    function labelName(label) {
+      return { maintenance: 'Maintenance', finance: 'Finance', urgent: 'Urgent', admin: 'Admin', approved: 'Approved' }[label] || label;
+    }
+
+    function showStatus(message) {
+      statusEl.textContent = message;
+      statusEl.classList.add('show');
+      window.clearTimeout(showStatus._t);
+      showStatus._t = window.setTimeout(() => statusEl.classList.remove('show'), 2400);
+    }
+
+    function renderBoard() {
+      board.innerHTML = '';
+      lists.forEach(list => {
+        const listCards = cards.filter(c => c.list === list.id);
+        const listEl = document.createElement('article');
+        listEl.className = 'list';
+        listEl.innerHTML = `
+          <div class="list-header">
+            <div class="list-title">${escapeHtml(list.title)}</div>
+            <div class="count">${listCards.length}</div>
+          </div>
+          <div class="cards" data-list="${list.id}"></div>
+          <button class="add-card" data-add-to="${list.id}">+ Add card</button>
+        `;
+        const cardsEl = listEl.querySelector('.cards');
+        listCards.forEach(card => cardsEl.appendChild(renderCard(card)));
+        board.appendChild(listEl);
+      });
+      updateOpenDrawer();
+    }
+
+    function renderCard(card) {
+      const el = document.createElement('div');
+      el.className = 'card';
+      el.dataset.cardId = card.id;
+      const currentIdx = lists.findIndex(l => l.id === card.list);
+      const canBack = currentIdx > 0;
+      const canFwd  = currentIdx < lists.length - 1;
+      el.innerHTML = `
+        <div class="labels">${card.labels.map(l => `<span class="label ${l}">${escapeHtml(labelName(l))}</span>`).join('')}</div>
+        <div class="card-title-row">
+          <h2>${escapeHtml(card.title)}</h2>
+          <button class="small-icon-button" data-open="${card.id}" title="Open card details">⋯</button>
+        </div>
+        <p>${escapeHtml(card.description)}</p>
+        <div class="meta">
+          <span class="pill">👤 ${escapeHtml(card.owner)}</span>
+          <span class="pill">📅 ${escapeHtml(card.due)}</span>
+          <span class="pill">📎 ${card.attachments}</span>
+          <span class="pill">💬 ${card.comments.length}</span>
+        </div>
+        <div class="card-actions">
+          <button class="vote-button ${card.voted ? 'voted' : ''}" data-vote="${card.id}">${card.voted ? 'Voted' : 'Vote'} · ${card.votes}</button>
+          <button data-open="${card.id}">Details</button>
+          <button data-move="${card.id}" data-dir="prev" ${!canBack ? 'disabled style="opacity:.4"' : ''}>← Back</button>
+          <button data-move="${card.id}" data-dir="next" ${!canFwd  ? 'disabled style="opacity:.4"' : ''}>Forward →</button>
+          <button data-minute="${card.id}" style="grid-column:span 2">Mark for minutes</button>
+        </div>
+      `;
+      return el;
+    }
+
+    function openDrawer(cardId) {
+      openCardId = cardId;
+      drawerBackdrop.classList.add('open');
+      updateOpenDrawer();
+    }
+
+    function closeDrawer() {
+      openCardId = null;
+      drawerBackdrop.classList.remove('open');
+      drawer.innerHTML = '';
+    }
+
+    function updateOpenDrawer() {
+      if (!openCardId || !drawerBackdrop.classList.contains('open')) return;
+      const card = cards.find(c => c.id === openCardId);
+      if (!card) return closeDrawer();
+      const doneCount = card.checklist.filter(i => i.done).length;
+      const currentIdx = lists.findIndex(l => l.id === card.list);
+      const canBack = currentIdx > 0;
+      const canFwd  = currentIdx < lists.length - 1;
+      drawer.innerHTML = `
+        <div class="drawer-header">
+          <div>
+            <div class="labels">${card.labels.map(l => `<span class="label ${l}">${escapeHtml(labelName(l))}</span>`).join('')}</div>
+            <h3>${escapeHtml(card.title)}</h3>
+            <div class="subtitle">Currently in: <strong>${escapeHtml(lists.find(l => l.id === card.list).title)}</strong></div>
+          </div>
+          <button id="closeDrawer" aria-label="Close">Close ✕</button>
+        </div>
+        <p>${escapeHtml(card.description)}</p>
+        <div class="meta">
+          <span class="pill">Owner: ${escapeHtml(card.owner)}</span>
+          <span class="pill">Due: ${escapeHtml(card.due)}</span>
+          <span class="pill">Votes: ${card.votes}</span>
+          <span class="pill">Attachments: ${card.attachments}</span>
+        </div>
+
+        <div class="section">
+          <h4>Move card</h4>
+          <div class="move-row" style="margin-bottom:10px">
+            <button data-move="${card.id}" data-dir="prev" ${!canBack ? 'disabled style="opacity:.4"' : ''}>← Previous stage</button>
+            <button data-move="${card.id}" data-dir="next" ${!canFwd  ? 'disabled style="opacity:.4"' : ''}>Next stage →</button>
+          </div>
+          <label style="font-size:12px;color:var(--color-muted);display:block;margin-bottom:5px">JUMP TO ANY STAGE</label>
+          <select data-move-select="${card.id}">
+            ${lists.map(l => `<option value="${l.id}" ${l.id === card.list ? 'selected' : ''}>${escapeHtml(l.title)}</option>`).join('')}
+          </select>
+        </div>
+
+        <div class="section">
+          <h4>Vote</h4>
+          <button class="vote-button ${card.voted ? 'voted' : ''}" data-vote="${card.id}">${card.voted ? 'Remove my vote' : 'Add my vote'} · ${card.votes} total</button>
+        </div>
+
+        <div class="section">
+          <h4>Checklist ${doneCount}/${card.checklist.length}</h4>
+          <ul class="checklist">
+            ${card.checklist.map((item, idx) => `
+              <li>
+                <label>
+                  <input type="checkbox" data-check="${card.id}" data-check-index="${idx}" ${item.done ? 'checked' : ''} />
+                  <span>${escapeHtml(item.text)}</span>
+                </label>
+              </li>
+            `).join('')}
+          </ul>
+        </div>
+
+        <div class="section">
+          <h4>Discussion / Decision trail</h4>
+          ${card.comments.map(c => `<div class="comment"><strong>${escapeHtml(c.author)}</strong>${escapeHtml(c.text)}</div>`).join('')}
+          <div class="inline-form">
+            <textarea id="commentText" placeholder="Add an update, decision note, quote summary or next action..."></textarea>
+            <button class="primary" data-add-comment="${card.id}">Add comment</button>
+          </div>
+        </div>
+
+        <div class="section">
+          <h4>Quick edit</h4>
+          <div class="inline-form">
+            <label>Owner
+              <select id="ownerSelect">
+                ${['Guy','Mia','James','Priya','Alex','Sam'].map(n => `<option ${card.owner===n?'selected':''}>${n}</option>`).join('')}
+              </select>
+            </label>
+            <label>Due date / status
+              <input id="dueInput" value="${escapeAttr(card.due)}" />
+            </label>
+            <button data-save-quick="${card.id}">Update card</button>
+          </div>
+        </div>
+      `;
+    }
+
+    function moveCard(cardId, dir) {
+      const card = cards.find(c => c.id === cardId);
+      const idx = lists.findIndex(l => l.id === card.list);
+      let target;
+      if (dir === 'prev') {
+        target = Math.max(idx - 1, 0);
+        if (target === idx) { showStatus('Already in the first stage.'); return; }
+      } else {
+        target = Math.min(idx + 1, lists.length - 1);
+        if (target === idx) { showStatus('Already in the final stage.'); return; }
+      }
+      card.list = lists[target].id;
+      renderBoard();
+      showStatus(`Moved to: ${lists[target].title}`);
+    }
+
+    function moveCardToList(cardId, listId) {
+      const card = cards.find(c => c.id === cardId);
+      if (card.list === listId) return;
+      const listName = lists.find(l => l.id === listId).title;
+      card.list = listId;
+      renderBoard();
+      showStatus(`Moved to: ${listName}`);
+    }
+
+    function toggleVote(cardId) {
+      const card = cards.find(c => c.id === cardId);
+      card.voted = !card.voted;
+      card.votes += card.voted ? 1 : -1;
+      renderBoard();
+      showStatus(card.voted ? 'Vote added.' : 'Vote removed.');
+    }
+
+    function markForMinutes(cardId) {
+      const card = cards.find(c => c.id === cardId);
+      card.list = 'complete';
+      if (!card.labels.includes('approved')) card.labels.push('approved');
+      card.comments.push({ author: 'System', text: 'Marked for inclusion in the next committee minutes.' });
+      renderBoard();
+      showStatus('Marked for minutes and moved to Completed.');
+    }
+
+    function addCard(listId) {
+      const titles = [
+        'Lift service follow-up',
+        'Request quote for driveway pressure cleaning',
+        'Noise complaint process review',
+        'Insurance renewal comparison',
+        'Common area noticeboard update'
+      ];
+      const title = titles[Math.floor(Math.random() * titles.length)];
+      cards.unshift({
+        id: 'c' + Math.random().toString(36).slice(2),
+        list: listId, title,
+        description: 'Demo card added during the POC. Open details to add notes, checklist items and a decision trail.',
+        labels: ['admin'], owner: 'Guy', due: 'TBC',
+        votes: 0, voted: false, attachments: 0,
+        comments: [{ author: 'Guy', text: 'New issue created for committee tracking.' }],
+        checklist: [
+          { text: 'Clarify issue', done: false },
+          { text: 'Assign owner', done: false },
+          { text: 'Agree next action', done: false }
+        ]
+      });
+      renderBoard();
+      showStatus('New demo card added.');
+    }
+
+    function resetDemo() {
+      lists = structuredClone(initialLists);
+      cards = structuredClone(initialCards);
+      closeDrawer();
+      renderBoard();
+      showStatus('Demo reset.');
+    }
+
+    board.addEventListener('click', e => {
+      const vote   = e.target.closest('[data-vote]');
+      const move   = e.target.closest('[data-move]');
+      const open   = e.target.closest('[data-open]');
+      const minute = e.target.closest('[data-minute]');
+      const addTo  = e.target.closest('[data-add-to]');
+      if (vote)   toggleVote(vote.dataset.vote);
+      else if (move && !move.disabled)   moveCard(move.dataset.move, move.dataset.dir);
+      else if (open)   openDrawer(open.dataset.open);
+      else if (minute) markForMinutes(minute.dataset.minute);
+      else if (addTo)  addCard(addTo.dataset.addTo);
+    });
+
+    drawer.addEventListener('click', e => {
+      if (e.target.id === 'closeDrawer') { closeDrawer(); return; }
+      const vote       = e.target.closest('[data-vote]');
+      const move       = e.target.closest('[data-move]');
+      const addComment = e.target.closest('[data-add-comment]');
+      const saveQuick  = e.target.closest('[data-save-quick]');
+      if (vote) toggleVote(vote.dataset.vote);
+      if (move && !move.disabled) moveCard(move.dataset.move, move.dataset.dir);
+      if (addComment) {
+        const card = cards.find(c => c.id === addComment.dataset.addComment);
+        const text = document.getElementById('commentText').value.trim();
+        if (!text) { showStatus('Type a comment first.'); return; }
+        card.comments.push({ author: 'Guy', text });
+        renderBoard();
+        showStatus('Comment added to decision trail.');
+      }
+      if (saveQuick) {
+        const card = cards.find(c => c.id === saveQuick.dataset.saveQuick);
+        card.owner = document.getElementById('ownerSelect').value;
+        card.due   = document.getElementById('dueInput').value.trim() || 'TBC';
+        renderBoard();
+        showStatus('Card updated.');
+      }
+    });
+
+    drawer.addEventListener('change', e => {
+      const moveSelect = e.target.closest('[data-move-select]');
+      if (moveSelect) { moveCardToList(moveSelect.dataset.moveSelect, moveSelect.value); return; }
+      const checkbox = e.target.closest('[data-check]');
+      if (!checkbox) return;
+      const card = cards.find(c => c.id === checkbox.dataset.check);
+      card.checklist[Number(checkbox.dataset.checkIndex)].done = checkbox.checked;
+      renderBoard();
+      showStatus('Checklist updated.');
+    });
+
+    drawerBackdrop.addEventListener('click', e => {
+      if (e.target === drawerBackdrop) closeDrawer();
+    });
+
+    document.getElementById('addIssueBtn').addEventListener('click', () => addCard('inbox'));
+    document.getElementById('demoModeBtn').addEventListener('click', resetDemo);
+
+    function escapeHtml(v) {
+      return String(v).replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
+    }
+    function escapeAttr(v) { return escapeHtml(v).replace(/`/g, '&#96;'); }
+
+    renderBoard();
+  </script>
+</body>
+</html>
